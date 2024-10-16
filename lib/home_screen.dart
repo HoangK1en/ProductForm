@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:path/path.dart' as Path;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,8 +17,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   CollectionReference products =
       FirebaseFirestore.instance.collection('product');
-      void _addProduct() {
-        products.add({
+
+     void _addProduct() {
+         products.add({
           'Name': _nameController.text,
           'Category': _categoryController.text,
           'Price': _priceController.text,
@@ -25,18 +27,20 @@ class _HomeScreenState extends State<HomeScreen> {
         _nameController.clear();
         _categoryController.clear();
         _priceController.clear();
-      }
+     }
 
-      void _deleteProduct(String productId) {
-        products.doc(productId).delete();
-      }
+  void _deleteProduct(String productId) {
+    products.doc(productId).delete();
+  }
 
-      void _editProduct(DocumentSnapshot product) {
-        _nameController.text = product['Name'];
-        _categoryController.text = product['Category'];
-        _priceController.text = product['Price'];
+  void _editProduct(DocumentSnapshot product) {
+    _nameController.text = product['Name'];
+    _categoryController.text = product['Category'];
+    _priceController.text = product['Price'];
 
-        showDialog(context: context, builder: (context) {
+    showDialog(
+        context: context,
+        builder: (context) {
           return AlertDialog(
             title: const Text('Edit product'),
             content: Column(
@@ -51,7 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   controller: _categoryController,
                   decoration: const InputDecoration(labelText: 'Category Name'),
                 ),
-                 const SizedBox(height: 8),
+                const SizedBox(height: 8),
                 TextFormField(
                   controller: _priceController,
                   decoration: const InputDecoration(labelText: 'Price'),
@@ -59,25 +63,29 @@ class _HomeScreenState extends State<HomeScreen> {
               ],
             ),
             actions: [
-              TextButton(onPressed: (){
-                Navigator.pop(context);
-              }, child: const Text('Cancel')),
-              ElevatedButton(onPressed: () {
-                _updateProduct(product.id);
-              }, child: const Text('Update')),
+              TextButton(
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
+                  child: const Text('Cancel')),
+              ElevatedButton(
+                  onPressed: () {
+                    _updateProduct(product.id);
+                  },
+                  child: const Text('Update')),
             ],
           );
         });
-      }
+  }
 
-      void _updateProduct(String productId) {
-        products.doc(productId).update({
-          'Name': _nameController.text,
-          'Category': _categoryController.text,
-          'Price': _priceController.text,
-        }
-        );
-      }
+  void _updateProduct(String productId) {
+    products.doc(productId).update({
+      'Name': _nameController.text,
+      'Category': _categoryController.text,
+      'Price': _priceController.text,
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -118,37 +126,38 @@ class _HomeScreenState extends State<HomeScreen> {
                   if (!snapshot.hasData) {
                     return const CircularProgressIndicator();
                   }
+        
                   return ListView.builder(
+                    
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
                       var product = snapshot.data!.docs[index];
                       return Dismissible(
                         key: Key(product.id),
                         background: Container(
-                          color: Colors.redAccent,
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.only(right: 16),
-                          child: const Icon(Icons.delete,
-                          color: Colors.white,)
-                        ),
-                        onDismissed: (direction){
+                            color: Colors.redAccent,
+                            alignment: Alignment.centerRight,
+                            padding: const EdgeInsets.only(right: 16),
+                            child: const Icon(
+                              Icons.delete,
+                              color: Colors.white,
+                            )),
+                        onDismissed: (direction) {
                           _deleteProduct(product.id);
                         },
                         direction: DismissDirection.endToStart,
                         child: Card(
-                            elevation: 4,
-                            margin: const EdgeInsets.symmetric(vertical: 8),
-                            child: ListTile(
-                              title: Text('Tên sp: ${product['Name']}'),   
-                              subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                  Text('Chung sp: ${product['Category']}'),
-                                      Text('Giá sp: ${product['Price']}'),
-                                  ],
-                                    
-                                  
-                              ),
+                          elevation: 4,
+                          margin: const EdgeInsets.symmetric(vertical: 8),                 
+                          child: ListTile(
+                            title: Text('Tên sp: ${product['Name']}'),
+                            subtitle: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Loại sp: ${product['Category']}'),
+                                Text('Giá sp: ${product['Price']}'),
+                              ],
+                            ),
                             trailing: Column(
                               children: [
                                 IconButton(
@@ -159,8 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                 ),
                               ],
                             ),
-                            ),
-                        
+                          ),
                         ),
                       );
                     },
